@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Age Calculator — Simple & Accurate</title>
+  <meta name="description" content="Quick age calculator: enter any date of birth and get years, months, days, total days, and next-birthday countdown. Mobile-friendly, accessible, and fast." />
+  <link rel="canonical" href="https://example.com/age-calculator" />
+  <meta name="robots" content="index,follow" />
+
+  <!-- Open Graph for richer sharing -->
+  <meta property="og:title" content="Age Calculator — Simple & Accurate" />
+  <meta property="og:description" content="Find exact age in years, months, days, total days, and countdown to next birthday." />
+  <meta property="og:type" content="website" />
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg1: linear-gradient(135deg,#f6f8ff 0%, #eef6ff 50%, #f2f7f3 100%);
+      --card: rgba(255,255,255,0.72);
+      --glass: rgba(255,255,255,0.6);
+      --accent: #4f46e5;
+      --muted:#6b7280;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    html,body{height:100%;margin:0}
+    body{
+      background: radial-gradient(circle at 10% 10%, rgba(79,70,229,0.06), transparent 10%), var(--bg1);
+      display:flex;align-items:center;justify-content:center;padding:32px;color:#0f172a;
+    }
+    .wrap{width:100%;max-width:920px}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    .logo{width:72px;height:72px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#06b6d4);color:white;font-weight:800;font-size:20px}
+    h1{margin:0;font-size:22px}
+    p.lead{margin:0;color:var(--muted)}
+
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:22px}
+    @media (max-width:880px){.grid{grid-template-columns:1fr}}
+
+    .card{background:var(--card);backdrop-filter:blur(8px);border-radius:14px;padding:18px;box-shadow:0 6px 24px rgba(16,24,40,0.08)}
+    .card h2{margin:0 0 12px 0}
+
+    form{display:flex;flex-direction:column;gap:12px}
+    label{font-weight:600;font-size:13px}
+    input[type="date"], select{padding:12px 14px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);font-size:15px}
+    .row{display:flex;gap:10px}
+    .btn{background:linear-gradient(90deg,var(--accent),#06b6d4);color:white;padding:10px 14px;border-radius:10px;border:0;font-weight:700;cursor:pointer}
+    .btn.secondary{background:transparent;color:var(--accent);border:1px solid rgba(79,70,229,0.12)}
+
+    .result{display:flex;flex-direction:column;gap:8px}
+    .big{font-size:34px;font-weight:800}
+    .meta{color:var(--muted)}
+
+    .stats{display:flex;gap:8px;flex-wrap:wrap}
+    .stat{background:var(--glass);padding:12px;border-radius:10px;min-width:120px;text-align:center}
+    .stat .label{font-size:12px;color:var(--muted)}
+    .stat .value{font-weight:700;font-size:18px}
+
+    footer{margin-top:14px;color:var(--muted);font-size:13px}
+
+    /* subtle animation */
+    .flash{animation:pop .36s ease}
+    @keyframes pop{0%{transform:translateY(6px);opacity:0}100%{transform:none;opacity:1}}
+
+    .small-note{font-size:13px;color:var(--muted)}
+
+    /* credit/ad area */
+    .ad-slot{border-radius:8px;border:1px dashed rgba(15,23,42,0.06);padding:10px;text-align:center;color:var(--muted)}
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">AC</div>
+      <div>
+        <h1>Age Calculator</h1>
+        <p class="lead">Type a date and get exact years, months, days, total days, and next birthday countdown.</p>
+      </div>
+    </header>
+
+    <div class="grid">
+      <main class="card" aria-labelledby="calc-title">
+        <h2 id="calc-title">Calculate your age</h2>
+
+        <form id="calcForm" onsubmit="return false;">
+          <div>
+            <label for="dob">Date of birth</label>
+            <input id="dob" type="date" required aria-required="true" aria-label="Date of birth" />
+          </div>
+
+          <div class="row">
+            <button id="calcBtn" class="btn" type="button">Calculate</button>
+            <button id="nowBtn" class="btn secondary" type="button">Use today</button>
+            <button id="clearBtn" class="btn secondary" type="button">Clear</button>
+          </div>
+
+          <p class="small-note">Tip: you can paste dates like 1990-05-09 or pick from the calendar. This tool runs fully in your browser.</p>
+        </form>
+
+        <div id="results" class="result" aria-live="polite" style="margin-top:14px;display:none">
+          <div class="big" id="ageText">—</div>
+          <div class="meta" id="ageMeta"></div>
+
+          <div class="stats" style="margin-top:12px">
+            <div class="stat">
+              <div class="label">Years</div>
+              <div class="value" id="yearsVal">0</div>
+            </div>
+            <div class="stat">
+              <div class="label">Months</div>
+              <div class="value" id="monthsVal">0</div>
+            </div>
+            <div class="stat">
+              <div class="label">Days</div>
+              <div class="value" id="daysVal">0</div>
+            </div>
+            <div class="stat">
+              <div class="label">Total days</div>
+              <div class="value" id="totalDays">0</div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+            <button id="copyBtn" class="btn secondary" type="button">Copy result</button>
+            <div id="nextBirthday" class="small-note"></div>
+          </div>
+        </div>
+
+      </main>
+
+      <aside class="card">
+        <h3>Monetization & quick links</h3>
+        <p class="small-note">Place ads or collect donations. Start with Google AdSense, or consider Ezoic/Mediavine once you have consistent traffic. (See monetization docs in the guide.)</p>
+
+        <div style="margin-top:12px">
+          <div class="ad-slot" aria-hidden="true">AD SLOT (paste ad code here)</div>
+        </div>
+
+        <hr style="margin:12px 0;border:none;border-top:1px solid rgba(15,23,42,0.04)" />
+        <p class="small-note">Save your last date locally for convenience.</p>
+        <div style="margin-top:8px;color:var(--muted);font-size:13px">Built with vanilla JS • Accessible • No tracking by default</div>
+      </aside>
+    </div>
+
+    <footer>
+      <div class="small-note">Pro tip: add an FAQ page with keywords like "how old am I" and "age calculator in months" to attract search traffic.</div>
+    </footer>
+  </div>
+
+  <!-- Structured data for better search understanding -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Age Calculator",
+    "url": "https://example.com/age-calculator",
+    "description": "A simple age calculator that computes exact years, months and days.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://example.com/age-calculator?dob={dob}",
+      "query-input": "required name=dob"
+    }
+  }
+  </script>
+
+  <script>
+    // small, precise age calculation (handles months/days correctly)
+    function calculateAgeParts(birthDate, toDate){
+      // make copies
+      const b = new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+      const n = new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate());
+
+      let years = n.getFullYear() - b.getFullYear();
+      let months = n.getMonth() - b.getMonth();
+      let days = n.getDate() - b.getDate();
+
+      if(days < 0){
+        months -= 1;
+        // days in previous month of `n`
+        const prev = new Date(n.getFullYear(), n.getMonth(), 0);
+        days += prev.getDate();
+      }
+      if(months < 0){
+        years -= 1;
+        months += 12;
+      }
+
+      // total days difference (UTC to avoid DST quirks)
+      const msPerDay = 24*60*60*1000;
+      const utc1 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
+      const utc2 = Date.UTC(toDate.getFullYear(), toDate.getMonth(), toDate.getDate());
+      const totalDays = Math.floor((utc2 - utc1) / msPerDay);
+
+      return {years, months, days, totalDays};
+    }
+
+    const dobInput = document.getElementById('dob');
+    const calcBtn = document.getElementById('calcBtn');
+    const nowBtn = document.getElementById('nowBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const results = document.getElementById('results');
+    const ageText = document.getElementById('ageText');
+    const ageMeta = document.getElementById('ageMeta');
+    const yearsVal = document.getElementById('yearsVal');
+    const monthsVal = document.getElementById('monthsVal');
+    const daysVal = document.getElementById('daysVal');
+    const totalDaysEl = document.getElementById('totalDays');
+    const nextBirthdayEl = document.getElementById('nextBirthday');
+    const copyBtn = document.getElementById('copyBtn');
+
+    // restore last used dob
+    try{
+      const saved = localStorage.getItem('agecalc-dob');
+      if(saved) dobInput.value = saved;
+    }catch(e){/*ignore*/}
+
+    function showResult(parts){
+      results.style.display = 'block';
+      ageText.textContent = `${parts.years} years, ${parts.months} months, ${parts.days} days`;
+      ageText.classList.add('flash');
+      setTimeout(()=>ageText.classList.remove('flash'),360);
+      ageMeta.textContent = `Exact age as of today.`;
+      yearsVal.textContent = parts.years;
+      monthsVal.textContent = parts.months;
+      daysVal.textContent = parts.days;
+      totalDaysEl.textContent = parts.totalDays.toLocaleString();
+
+      // next birthday
+      const now = new Date();
+      const thisYearBirthday = new Date(now.getFullYear(), new Date(dobInput.value).getMonth(), new Date(dobInput.value).getDate());
+      let next = thisYearBirthday;
+      if(now > thisYearBirthday) next = new Date(now.getFullYear()+1, thisYearBirthday.getMonth(), thisYearBirthday.getDate());
+      const diffMs = next - now;
+      const daysLeft = Math.ceil(diffMs / (24*60*60*1000));
+      nextBirthdayEl.textContent = `Next birthday in ${daysLeft} day${daysLeft!==1?'s':''} (on ${next.toDateString()}).`;
+    }
+
+    function calculate(){
+      if(!dobInput.value) return alert('Please enter a date of birth.');
+      const dob = new Date(dobInput.value);
+      const now = new Date();
+      if(isNaN(dob)) return alert('Invalid date. Use YYYY-MM-DD.');
+      if(dob > now) return alert('Date of birth cannot be in the future.');
+
+      const parts = calculateAgeParts(dob, now);
+      showResult(parts);
+
+      try{ localStorage.setItem('agecalc-dob', dobInput.value); }catch(e){}
+    }
+
+    calcBtn.addEventListener('click', calculate);
+    nowBtn.addEventListener('click', ()=>{ dobInput.value = new Date().toISOString().slice(0,10); calculate(); });
+    clearBtn.addEventListener('click', ()=>{ dobInput.value=''; results.style.display='none'; try{localStorage.removeItem('agecalc-dob')}catch(e){} });
+
+    copyBtn.addEventListener('click', ()=>{
+      const txt = ageText.textContent + ' — total days: ' + totalDaysEl.textContent;
+      navigator.clipboard?.writeText(txt).then(()=>{
+        copyBtn.textContent = 'Copied!';
+        setTimeout(()=>copyBtn.textContent = 'Copy result',1200);
+      }, ()=>{ alert('Could not copy.'); });
+    });
+
+    // small UX: press Enter to calculate
+    dobInput.addEventListener('keyup', (e)=>{ if(e.key === 'Enter') calculate(); });
+
+  </script>
+
+  <!-- Example: where to paste AdSense/Ezoic scripts (do this only after you create accounts and follow their policies) -->
+  <!--
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXX"
+       data-ad-slot="YYYYYYYY"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  -->
+
+</body>
+</html>

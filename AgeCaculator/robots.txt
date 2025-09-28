@@ -1,0 +1,11 @@
+# robots.txt for Age Calculator
+
+User-agent: *
+Allow: /
+
+# Block admin or backend folders if you add them later
+Disallow: /admin/
+Disallow: /backend/
+
+# Sitemap location
+Sitemap: https://www.yourdomain.com/sitemap.xml
